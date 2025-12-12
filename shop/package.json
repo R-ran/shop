@@ -13,7 +13,7 @@
     "start": "next start",
     "lint": "next lint",
     "postbuild:rest": "next-sitemap",
-    "prepare": "husky install"
+    "prepare": "node -e \"if (!process.env.CI && require('fs').existsSync('.git')) { require('child_process').execSync('husky install', {stdio: 'inherit'}); }\""
   },
   "dependencies": {
     "@apollo/client": "3.11.8",
