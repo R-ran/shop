@@ -149,10 +149,12 @@ const GroupsDropdownMenu: React.FC<GroupsDropdownMenuProps> = ({ variant }) => {
   const { types }: any = useTypes({
     limit: TYPES_PER_PAGE,
   });
+  // 确保 types 是数组
+  const typesArray = Array.isArray(types) ? types : [];
   //FIXME: remove this
   const { homePage }: any = useHomepage();
   return (
-    <GroupsMenu groups={types} defaultGroup={homePage} variant={variant} />
+    <GroupsMenu groups={typesArray} defaultGroup={homePage} variant={variant} />
   );
 };
 

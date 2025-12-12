@@ -6,16 +6,18 @@ const useLayout = () => {
     limit: TYPES_PER_PAGE,
   });
   const router = useRouter();
+  // 确保 types 是数组
+  const typesArray = Array.isArray(data?.types) ? data.types : [];
   const regex = /^\/$|^\/\?(.*)/;
   if (regex.test(router?.asPath)) {
     const homePage =
-      data?.types?.find((type) => type?.settings?.isHome) ?? data?.types?.[0];
+      typesArray.find((type) => type?.settings?.isHome) ?? typesArray[0];
     return {
       layout: homePage?.settings?.layoutType ?? 'default',
       page: homePage,
     };
   }
-  const page = data?.types?.find((type) => router.asPath.includes(type?.slug!));
+  const page = typesArray.find((type) => router.asPath.includes(type?.slug!));
   return {
     layout: page?.settings?.layoutType ?? 'default',
     page,

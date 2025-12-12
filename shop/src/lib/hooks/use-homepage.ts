@@ -5,7 +5,9 @@ export default function useHomepage() {
   const { types } = useTypes({
     limit: TYPES_PER_PAGE,
   });
-  if (!types) {
+  // 确保 types 是数组
+  const typesArray = Array.isArray(types) ? types : [];
+  if (!typesArray || typesArray.length === 0) {
     return {
       homePage: {
         slug: '',
@@ -13,6 +15,6 @@ export default function useHomepage() {
     };
   }
   return {
-    homePage: types.find((type:any) => type?.settings?.isHome) ?? types[0],
+    homePage: typesArray.find((type:any) => type?.settings?.isHome) ?? typesArray[0],
   };
 }
