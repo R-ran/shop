@@ -75,3 +75,5 @@ export const approveShopSchema = yup.object().shape({
     .typeError('Commission rate must be a number')
     .required('You must need to set your commission rate'),
 });
+
+export const approveShopWithCommissionSchema = approveShopSchema;

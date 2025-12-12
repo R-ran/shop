@@ -1,17 +1,5 @@
-// 必须在导入 next-auth 之前设置 NEXTAUTH_URL
-// next-auth 在模块加载时就会检查这个变量，所以必须在导入前设置
-if (!process.env.NEXTAUTH_URL) {
-  if (process.env.VERCEL_URL) {
-    process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
-  } else if (process.env.NEXT_PUBLIC_SITE_URL) {
-    process.env.NEXTAUTH_URL = process.env.NEXT_PUBLIC_SITE_URL;
-  } else if (process.env.VERCEL) {
-    // Vercel 构建环境但没有 VERCEL_URL，使用占位符
-    process.env.NEXTAUTH_URL = 'https://placeholder.vercel.app';
-  } else {
-    process.env.NEXTAUTH_URL = 'http://localhost:3003';
-  }
-}
+// 必须在所有导入之前设置环境变量
+import '@/config/setup-env';
 
 import { getEnv } from '@/config/get-env';
 import NextAuth from 'next-auth';

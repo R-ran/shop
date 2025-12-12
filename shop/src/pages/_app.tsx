@@ -1,15 +1,5 @@
-// 必须在导入 next-auth/react 之前设置 NEXTAUTH_URL
-if (!process.env.NEXTAUTH_URL) {
-  if (process.env.VERCEL_URL) {
-    process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
-  } else if (process.env.NEXT_PUBLIC_SITE_URL) {
-    process.env.NEXTAUTH_URL = process.env.NEXT_PUBLIC_SITE_URL;
-  } else if (process.env.VERCEL) {
-    process.env.NEXTAUTH_URL = 'https://placeholder.vercel.app';
-  } else {
-    process.env.NEXTAUTH_URL = 'http://localhost:3003';
-  }
-}
+// 必须在所有导入之前设置环境变量
+import '@/config/setup-env';
 
 import type { AppProps } from 'next/app';
 import { appWithTranslation } from 'next-i18next';

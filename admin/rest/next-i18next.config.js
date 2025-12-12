@@ -3,6 +3,14 @@
 const invariant = require('tiny-invariant');
 const path = require('path');
 
+// 为构建时提供默认值
+if (!process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE) {
+  process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE = 'en';
+}
+if (!process.env.NEXT_PUBLIC_AVAILABLE_LANGUAGES) {
+  process.env.NEXT_PUBLIC_AVAILABLE_LANGUAGES = 'en,de,es';
+}
+
 invariant(
   process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE,
   'NEXT_PUBLIC_DEFAULT_LANGUAGE is required, but not set, check your .env file'
