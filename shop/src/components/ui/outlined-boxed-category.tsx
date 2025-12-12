@@ -7,6 +7,11 @@ interface CategoryItemProps {
   item: any;
 }
 const CategoryItem: React.FC<CategoryItemProps> = ({ item }) => {
+  // 如果 item 不存在或缺少必要属性，返回 null
+  if (!item || !item.slug || !item.name) {
+    return null;
+  }
+
   const router = useRouter();
 
   const { pathname, query } = router;
@@ -68,9 +73,18 @@ const CategoryItem: React.FC<CategoryItemProps> = ({ item }) => {
 };
 
 function OutlinedBoxedCategoryMenu({ items }: any) {
+  // 确保 items 是数组并过滤掉无效项
+  const validItems = Array.isArray(items) 
+    ? items.filter((item: any) => item && item.name && item.slug)
+    : [];
+  
+  if (validItems.length === 0) {
+    return null;
+  }
+
   return (
     <>
-      {items?.map((item: any) => (
+      {validItems.map((item: any) => (
         <CategoryItem key={`${item.name}${item.slug}`} item={item} />
       ))}
     </>

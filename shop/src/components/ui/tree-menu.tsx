@@ -19,17 +19,28 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
   item,
   depth = 0,
 }) => {
+  // 如果 item 不存在，返回 null
+  if (!item) {
+    return null;
+  }
+
   const router = useRouter();
   const active = router?.query?.category;
   const isActive =
-    active === item.slug ||
-    item?.children?.some((_item: any) => _item.slug === active);
+    active === item?.slug ||
+    item?.children?.some((_item: any) => _item?.slug === active);
   const [isOpen, setOpen] = useState<boolean>(isActive);
   useEffect(() => {
     setOpen(isActive);
   }, [isActive]);
 
-  const { slug, name, children: items, icon } = item;
+  const { slug, name, children: items, icon } = item || {};
+  
+  // 如果缺少必要属性，返回 null
+  if (!slug || !name) {
+    return null;
+  }
+
   const [{ display }, setDrawerState] = useAtom(drawerAtom);
 
   function toggleCollapse() {
@@ -91,7 +102,7 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
               })}
             </span>
           )}
-          <span>{name}</span>
+          <span>{name || ''}</span>
           <span className="ltr:ml-auto ltr:mr-4 rtl:ml-4 rtl:mr-auto">
             {expandIcon}
           </span>
@@ -112,17 +123,19 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
               transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
               className="text-xs ltr:ml-4 rtl:mr-4"
             >
-              {items.map((currentItem) => {
-                const childDepth = depth + 1;
-                return (
-                  <TreeMenuItem
-                    key={`${currentItem.name}${currentItem.slug}`}
-                    item={currentItem}
-                    depth={childDepth}
-                    className={cn('text-sm text-body ltr:ml-5 rtl:mr-5')}
-                  />
-                );
-              })}
+              {items
+                .filter((currentItem) => currentItem && currentItem.name && currentItem.slug)
+                .map((currentItem) => {
+                  const childDepth = depth + 1;
+                  return (
+                    <TreeMenuItem
+                      key={`${currentItem.name}${currentItem.slug}`}
+                      item={currentItem}
+                      depth={childDepth}
+                      className={cn('text-sm text-body ltr:ml-5 rtl:mr-5')}
+                    />
+                  );
+                })}
             </motion.ul>
           </li>
         ) : null}
@@ -136,9 +149,18 @@ interface TreeMenuProps {
 }
 
 function TreeMenu({ items, className }: TreeMenuProps) {
+  // 确保 items 是数组并过滤掉无效项
+  const validItems = Array.isArray(items) 
+    ? items.filter((item: any) => item && item.name && item.slug)
+    : [];
+  
+  if (validItems.length === 0) {
+    return null;
+  }
+
   return (
     <ul className={cn('text-xs', className)}>
-      {items?.map((item: any) => (
+      {validItems.map((item: any) => (
         <TreeMenuItem key={`${item.name}${item.slug}`} item={item} />
       ))}
     </ul>
