@@ -11,6 +11,7 @@
   "scripts": {
     "clean": "yarn workspaces run rimraf \"{.next,node_modules,__generated__,.cache,src/graphql/*.d.ts,src/framework/graphql/**/*.d.ts}\" && rimraf node_modules",
     "gql-clean": "yarn workspaces run rimraf \"{__generated__,src/graphql/*.d.ts,src/framework/graphql/**/*.d.ts}\"",
+    "build": "pnpm --filter @pick-bazar/shop build:rest",
     "dev:shop-rest": "yarn workspace @pick-bazar/shop dev:rest",
     "build:shop-rest": "yarn workspace @pick-bazar/shop build:rest",
     "start:shop-rest": "yarn workspace @pick-bazar/shop start",

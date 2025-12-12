@@ -1,0 +1,7 @@
+{
+  "buildCommand": "pnpm --filter @pick-bazar/shop build:rest",
+  "outputDirectory": "shop/.next",
+  "installCommand": "pnpm install",
+  "framework": "nextjs"
+}
+
