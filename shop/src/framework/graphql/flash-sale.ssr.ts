@@ -13,22 +13,30 @@ type ParsedQueryParams = {
 };
 export const getStaticPaths: GetStaticPaths<ParsedQueryParams> = async ({ locales, defaultLocale }) => {
   invariant(!!locales, 'locales is not defined');
-  const apolloClient = initializeApollo();
-  const { data: { flashSales } } = await apolloClient.query<FlashSalesQuery>({
-    query: FlashSalesDocument,
-    variables: {
-      language: defaultLocale,
-      first: SHOPS_LIMIT,
-    },
-  });
-  invariant(flashSales, 'flashSales is not defined');
-  const paths = flashSales?.data.flatMap((flashSale) =>
-    locales.map((locale) => ({ params: { slug: flashSale.slug! }, locale }))
-  );
-  return {
-    paths,
-    fallback: 'blocking',
-  };
+  try {
+    const apolloClient = initializeApollo();
+    const { data: { flashSales } } = await apolloClient.query<FlashSalesQuery>({
+      query: FlashSalesDocument,
+      variables: {
+        language: defaultLocale,
+        first: SHOPS_LIMIT,
+      },
+    });
+    invariant(flashSales, 'flashSales is not defined');
+    const paths = flashSales?.data.flatMap((flashSale) =>
+      locales.map((locale) => ({ params: { slug: flashSale.slug! }, locale }))
+    );
+    return {
+      paths: paths || [],
+      fallback: 'blocking',
+    };
+  } catch (error) {
+    console.warn('Failed to fetch flash sales during build, using fallback mode:', error);
+    return {
+      paths: [],
+      fallback: 'blocking',
+    };
+  }
 };
 
 type PageProps = {
@@ -40,35 +48,42 @@ export const getStaticProps: GetStaticProps<
   PageProps,
   ParsedQueryParams
 > = async ({ params, locale }) => {
-  const apolloClient = initializeApollo();
-  const { slug } = params!;
-  await apolloClient.query({
-    query: SettingsDocument,
-    variables: {
-      language: locale,
-      first: LIMIT_HUNDRED
-    },
-  });
-  const {
-    data: { flashSale },
-  } = await apolloClient.query<FlashSaleQuery>({
-    query: FlashSaleDocument,
-    variables: {
-      slug,
-      language: locale,
-    },
-  });
+  try {
+    const apolloClient = initializeApollo();
+    const { slug } = params!;
+    await apolloClient.query({
+      query: SettingsDocument,
+      variables: {
+        language: locale,
+        first: LIMIT_HUNDRED
+      },
+    });
+    const {
+      data: { flashSale },
+    } = await apolloClient.query<FlashSaleQuery>({
+      query: FlashSaleDocument,
+      variables: {
+        slug,
+        language: locale,
+      },
+    });
 
-  if (!flashSale) {
+    if (!flashSale) {
+      return {
+        notFound: true,
+      };
+    }
+    return addApolloState(apolloClient, {
+      props: {
+        flashSale,
+        ...(await serverSideTranslations(locale!, ['common'])),
+      },
+      revalidate: 60,
+    });
+  } catch (error) {
+    console.warn('Failed to fetch flash sale data during build:', error);
     return {
       notFound: true,
     };
   }
-  return addApolloState(apolloClient, {
-    props: {
-      flashSale,
-      ...(await serverSideTranslations(locale!, ['common'])),
-    },
-    revalidate: 60,
-  });
 };
