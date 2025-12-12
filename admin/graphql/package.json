@@ -3,7 +3,7 @@
   "version": "11.10.2",
   "private": true,
   "scripts": {
-    "codegen": "node -r dotenv/config $(yarn bin)/graphql-let",
+    "codegen": "pnpm exec graphql-let || npx graphql-let",
     "dev": "yarn codegen && next dev -p 3004",
     "build": "yarn codegen && next build",
     "start": "next start -p 3004",

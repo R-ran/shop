@@ -22,6 +22,12 @@ export function getEnv(
 ): EnvVariables[keyof EnvVariables] {
   const val = process.env[name];
   if (!val) {
+    // 为 NEXTAUTH_URL 提供默认值，避免构建时失败
+    if (name === 'NEXTAUTH_URL') {
+      return process.env.VERCEL_URL 
+        ? `https://${process.env.VERCEL_URL}` 
+        : 'http://localhost:3003';
+    }
     throw new Error(`Cannot find environmental variable: ${name}`);
   }
   return val;
