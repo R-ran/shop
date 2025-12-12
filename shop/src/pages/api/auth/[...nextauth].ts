@@ -1,14 +1,22 @@
+// 必须在导入 next-auth 之前设置 NEXTAUTH_URL
+// next-auth 在模块加载时就会检查这个变量，所以必须在导入前设置
+if (!process.env.NEXTAUTH_URL) {
+  if (process.env.VERCEL_URL) {
+    process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+  } else if (process.env.NEXT_PUBLIC_SITE_URL) {
+    process.env.NEXTAUTH_URL = process.env.NEXT_PUBLIC_SITE_URL;
+  } else if (process.env.VERCEL) {
+    // Vercel 构建环境但没有 VERCEL_URL，使用占位符
+    process.env.NEXTAUTH_URL = 'https://placeholder.vercel.app';
+  } else {
+    process.env.NEXTAUTH_URL = 'http://localhost:3003';
+  }
+}
+
 import { getEnv } from '@/config/get-env';
 import NextAuth from 'next-auth';
 import FacebookProvider from 'next-auth/providers/facebook';
 import GoogleProvider from 'next-auth/providers/google';
-
-// 确保 NEXTAUTH_URL 在构建时有值
-if (!process.env.NEXTAUTH_URL) {
-  process.env.NEXTAUTH_URL = process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
-    : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3003';
-}
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
