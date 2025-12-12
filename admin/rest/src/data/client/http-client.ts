@@ -3,6 +3,13 @@ import Cookies from 'js-cookie';
 import Router from 'next/router';
 import invariant from 'tiny-invariant';
 
+// 为构建时提供默认值，避免构建失败
+if (!process.env.NEXT_PUBLIC_REST_API_ENDPOINT) {
+  process.env.NEXT_PUBLIC_REST_API_ENDPOINT = process.env.VERCEL 
+    ? 'https://placeholder-api.vercel.app/api'
+    : 'http://localhost:5000/api';
+}
+
 invariant(
   process.env.NEXT_PUBLIC_REST_API_ENDPOINT,
   'NEXT_PUBLIC_REST_API_ENDPOINT is not defined, please define it in your .env file',
