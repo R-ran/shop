@@ -17,14 +17,22 @@ export const getStaticPaths: GetStaticPaths<ParsedQueryParams> = async ({
   locales,
 }) => {
   invariant(locales, 'locales is not defined');
-  const { data } = await client.shops.all({ limit: 100, is_active: 1 });
-  const paths = data?.flatMap((shop) =>
-    locales?.map((locale) => ({ params: { slug: shop.slug }, locale }))
-  );
-  return {
-    paths,
-    fallback: 'blocking',
-  };
+  try {
+    const { data } = await client.shops.all({ limit: 100, is_active: 1 });
+    const paths = data?.flatMap((shop) =>
+      locales?.map((locale) => ({ params: { slug: shop.slug }, locale }))
+    );
+    return {
+      paths: paths || [],
+      fallback: 'blocking',
+    };
+  } catch (error) {
+    console.warn('Failed to fetch shops during build, using fallback mode:', error);
+    return {
+      paths: [],
+      fallback: 'blocking',
+    };
+  }
 };
 type PageProps = {
   shop: Shop;

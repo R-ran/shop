@@ -4,18 +4,26 @@ import Router from 'next/router';
 import invariant from 'tiny-invariant';
 
 // 为构建时提供默认值，避免构建失败
-if (!process.env.NEXT_PUBLIC_REST_API_ENDPOINT) {
-  process.env.NEXT_PUBLIC_REST_API_ENDPOINT = process.env.VERCEL 
-    ? 'https://placeholder-api.vercel.app/api'
-    : 'http://localhost:5000/api';
-}
+const getApiEndpoint = () => {
+  const endpoint = process.env.NEXT_PUBLIC_REST_API_ENDPOINT;
+  if (endpoint) {
+    return endpoint;
+  }
+  // 如果环境变量未设置，使用默认值
+  if (process.env.VERCEL) {
+    return 'https://placeholder-api.vercel.app/api';
+  }
+  return 'http://localhost:5000/api';
+};
+
+const API_ENDPOINT = getApiEndpoint();
 
 invariant(
-  process.env.NEXT_PUBLIC_REST_API_ENDPOINT,
+  API_ENDPOINT,
   'NEXT_PUBLIC_REST_API_ENDPOINT is not defined, please define it in your .env file',
 );
 const Axios = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_REST_API_ENDPOINT,
+  baseURL: API_ENDPOINT,
   timeout: 50000,
   headers: {
     'Content-Type': 'application/json',

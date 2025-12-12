@@ -16,17 +16,25 @@ export const getStaticPaths: GetStaticPaths<ParsedQueryParams> = async ({
   locales,
 }) => {
   invariant(locales, 'locales is not defined');
-  const { data } = await client.manufacturers.all({ limit: 100 });
-  const paths = data?.flatMap((manufacturer) =>
-    locales?.map((locale) => ({
-      params: { manufacturer: manufacturer.slug },
-      locale,
-    }))
-  );
-  return {
-    paths,
-    fallback: 'blocking',
-  };
+  try {
+    const { data } = await client.manufacturers.all({ limit: 100 });
+    const paths = data?.flatMap((manufacturer) =>
+      locales?.map((locale) => ({
+        params: { manufacturer: manufacturer.slug },
+        locale,
+      }))
+    );
+    return {
+      paths: paths || [],
+      fallback: 'blocking',
+    };
+  } catch (error) {
+    console.warn('Failed to fetch manufacturers during build, using fallback mode:', error);
+    return {
+      paths: [],
+      fallback: 'blocking',
+    };
+  }
 };
 type PageProps = {
   manufacturer: Manufacturer;

@@ -16,14 +16,23 @@ export const getStaticPaths: GetStaticPaths<ParsedQueryParams> = async ({
   locales,
 }) => {
   invariant(locales, 'locales is not defined');
-  const { data } = await client.authors.all({ limit: 100 });
-  const paths = data?.flatMap((shop) =>
-    locales?.map((locale) => ({ params: { author: shop.slug }, locale }))
-  );
-  return {
-    paths,
-    fallback: 'blocking',
-  };
+  try {
+    const { data } = await client.authors.all({ limit: 100 });
+    const paths = data?.flatMap((shop) =>
+      locales?.map((locale) => ({ params: { author: shop.slug }, locale }))
+    );
+    return {
+      paths: paths || [],
+      fallback: 'blocking',
+    };
+  } catch (error) {
+    // 如果 API 调用失败，返回空路径，使用 fallback 模式
+    console.warn('Failed to fetch authors during build, using fallback mode:', error);
+    return {
+      paths: [],
+      fallback: 'blocking',
+    };
+  }
 };
 type PageProps = {
   author: Author;
