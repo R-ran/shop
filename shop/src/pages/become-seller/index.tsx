@@ -13,7 +13,7 @@ const BecomeSellerPage: NextPageWithLayout<
   return (
     <div className="bg-[#F9FAFB]">
       <Seo title="Become seller" url={Routes.becomeSeller} />
-      <BecomeSeller data={data} />
+      <BecomeSeller data={data || null} />
     </div>
   );
 };

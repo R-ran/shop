@@ -1,10 +1,14 @@
 import { useGroupsQuery } from '../gql/groups.graphql';
 const useHomepage = () => {
   const { data } = useGroupsQuery();
+  // 确保 types 是数组
+  const types = Array.isArray(data?.types) ? data.types : [];
   const homePage =
-    data?.types?.find((type:any) => type?.settings?.isHome) ?? data?.types?.[0];
+    types.find((type:any) => type?.settings?.isHome) ?? types[0] ?? null;
   return {
-    homePage,
+    homePage: homePage || {
+      slug: '',
+    },
   };
 };
 
