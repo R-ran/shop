@@ -3,30 +3,33 @@ import Cookies from 'js-cookie';
 import Router from 'next/router';
 import invariant from 'tiny-invariant';
 
-// 为构建时提供默认值，避免构建失败
+// 获取 API 端点 - 构建时使用默认值，运行时检查并提示
 const getApiEndpoint = () => {
   const endpoint = process.env.NEXT_PUBLIC_REST_API_ENDPOINT;
+  
+  // 如果设置了有效的端点，直接返回
   if (endpoint && endpoint.trim() !== '') {
     return endpoint;
   }
-  // 在开发环境下使用默认值
+  
+  // 开发环境使用 localhost
   if (process.env.NODE_ENV === 'development') {
     return 'http://localhost:5000/api';
   }
-  // 生产环境必须设置环境变量
-  console.error(
-    '❌ NEXT_PUBLIC_REST_API_ENDPOINT is not defined!',
-    'Please set this environment variable in your deployment platform.',
-    'For example: NEXT_PUBLIC_REST_API_ENDPOINT=https://your-api-domain.com/api'
-  );
-  throw new Error(
-    'NEXT_PUBLIC_REST_API_ENDPOINT is not defined. Please set this environment variable in your deployment platform.'
-  );
+  
+  // 构建时返回占位符，让构建通过
+  // 运行时会在拦截器中检查并提示
+  if (typeof window === 'undefined') {
+    return 'http://localhost:5000/api'; // SSR 时使用默认值，避免构建失败
+  }
+  
+  // 客户端运行时，如果未设置，返回空字符串，由拦截器处理
+  return '';
 };
 
 const API_ENDPOINT = getApiEndpoint();
 const Axios = axios.create({
-  baseURL: API_ENDPOINT,
+  baseURL: API_ENDPOINT || 'http://localhost:5000/api', // 提供默认值避免创建失败
   timeout: 50000,
   headers: {
     'Content-Type': 'application/json',
@@ -34,7 +37,27 @@ const Axios = axios.create({
 });
 // Change request data/error
 const AUTH_TOKEN_KEY = process.env.NEXT_PUBLIC_AUTH_TOKEN_KEY ?? 'authToken';
+
+// 在请求拦截器中检查 API 端点配置（仅在客户端运行时）
 Axios.interceptors.request.use((config) => {
+  // 客户端运行时检查 API 端点配置
+  if (typeof window !== 'undefined') {
+    const endpoint = process.env.NEXT_PUBLIC_REST_API_ENDPOINT;
+    if (!endpoint || endpoint.trim() === '' || endpoint === 'http://localhost:5000/api') {
+      // 只在第一次请求时显示错误，避免重复提示
+      if (!(window as any).__API_ENDPOINT_WARNING_SHOWN) {
+        (window as any).__API_ENDPOINT_WARNING_SHOWN = true;
+        console.error(
+          '%c❌ API 端点未配置',
+          'color: red; font-size: 16px; font-weight: bold;',
+          '\n\n请在部署平台设置环境变量:',
+          '\nNEXT_PUBLIC_REST_API_ENDPOINT=https://your-api-domain.com/api',
+          '\n\n然后重新部署应用。'
+        );
+      }
+    }
+  }
+
   const cookies = Cookies.get(AUTH_TOKEN_KEY);
   let token = '';
   if (cookies) {

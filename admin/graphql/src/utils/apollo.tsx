@@ -57,28 +57,50 @@ function createApolloClient() {
     if (networkError) console.log(`[Network error]: ${networkError}`);
   });
   // 获取 GraphQL API 端点
+  // 构建时提供默认值，运行时检查并提示
   const getGraphQLEndpoint = () => {
     const endpoint = process.env.NEXT_PUBLIC_GRAPHQL_API_ENDPOINT;
+    
+    // 如果设置了有效的端点，直接返回
     if (endpoint && endpoint.trim() !== '' && endpoint !== 'your_graphql_api_endpoint') {
       return endpoint;
     }
-    // 在开发环境下使用默认值
+    
+    // 开发环境使用 localhost
     if (process.env.NODE_ENV === 'development') {
       return 'http://localhost:5000/graphql';
     }
-    // 生产环境必须设置环境变量
-    console.error(
-      '❌ NEXT_PUBLIC_GRAPHQL_API_ENDPOINT is not defined!',
-      'Please set this environment variable in your deployment platform.',
-      'For example: NEXT_PUBLIC_GRAPHQL_API_ENDPOINT=https://your-api-domain.com/graphql'
-    );
-    throw new Error(
-      'NEXT_PUBLIC_GRAPHQL_API_ENDPOINT is not defined. Please set this environment variable in your deployment platform.'
-    );
+    
+    // 构建时返回默认值，让构建通过
+    // 运行时会在错误处理中提示
+    return 'http://localhost:5000/graphql';
   };
 
+  const endpoint = getGraphQLEndpoint();
+  
+  // 在客户端运行时检查并提示
+  if (typeof window !== 'undefined') {
+    const configuredEndpoint = process.env.NEXT_PUBLIC_GRAPHQL_API_ENDPOINT;
+    if (!configuredEndpoint || 
+        configuredEndpoint.trim() === '' || 
+        configuredEndpoint === 'your_graphql_api_endpoint' ||
+        configuredEndpoint === 'http://localhost:5000/graphql') {
+      // 只在第一次创建时显示错误，避免重复提示
+      if (!(window as any).__GRAPHQL_ENDPOINT_WARNING_SHOWN) {
+        (window as any).__GRAPHQL_ENDPOINT_WARNING_SHOWN = true;
+        console.error(
+          '%c❌ GraphQL API 端点未配置',
+          'color: red; font-size: 16px; font-weight: bold;',
+          '\n\n请在部署平台设置环境变量:',
+          '\nNEXT_PUBLIC_GRAPHQL_API_ENDPOINT=https://your-api-domain.com/graphql',
+          '\n\n然后重新部署应用。'
+        );
+      }
+    }
+  }
+
   const httpLink = createUploadLink({
-    uri: getGraphQLEndpoint(), // Server URL (must be absolute)
+    uri: endpoint, // Server URL (must be absolute)
     credentials: 'same-origin',
   });
 
