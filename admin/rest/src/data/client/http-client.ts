@@ -6,22 +6,25 @@ import invariant from 'tiny-invariant';
 // 为构建时提供默认值，避免构建失败
 const getApiEndpoint = () => {
   const endpoint = process.env.NEXT_PUBLIC_REST_API_ENDPOINT;
-  if (endpoint) {
+  if (endpoint && endpoint.trim() !== '') {
     return endpoint;
   }
-  // 如果环境变量未设置，使用默认值
-  if (process.env.VERCEL) {
-    return 'https://placeholder-api.vercel.app/api';
+  // 在开发环境下使用默认值
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:5000/api';
   }
-  return 'http://localhost:5000/api';
+  // 生产环境必须设置环境变量
+  console.error(
+    '❌ NEXT_PUBLIC_REST_API_ENDPOINT is not defined!',
+    'Please set this environment variable in your deployment platform.',
+    'For example: NEXT_PUBLIC_REST_API_ENDPOINT=https://your-api-domain.com/api'
+  );
+  throw new Error(
+    'NEXT_PUBLIC_REST_API_ENDPOINT is not defined. Please set this environment variable in your deployment platform.'
+  );
 };
 
 const API_ENDPOINT = getApiEndpoint();
-
-invariant(
-  API_ENDPOINT,
-  'NEXT_PUBLIC_REST_API_ENDPOINT is not defined, please define it in your .env file',
-);
 const Axios = axios.create({
   baseURL: API_ENDPOINT,
   timeout: 50000,

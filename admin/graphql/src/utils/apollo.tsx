@@ -56,8 +56,29 @@ function createApolloClient() {
       });
     if (networkError) console.log(`[Network error]: ${networkError}`);
   });
+  // 获取 GraphQL API 端点
+  const getGraphQLEndpoint = () => {
+    const endpoint = process.env.NEXT_PUBLIC_GRAPHQL_API_ENDPOINT;
+    if (endpoint && endpoint.trim() !== '' && endpoint !== 'your_graphql_api_endpoint') {
+      return endpoint;
+    }
+    // 在开发环境下使用默认值
+    if (process.env.NODE_ENV === 'development') {
+      return 'http://localhost:5000/graphql';
+    }
+    // 生产环境必须设置环境变量
+    console.error(
+      '❌ NEXT_PUBLIC_GRAPHQL_API_ENDPOINT is not defined!',
+      'Please set this environment variable in your deployment platform.',
+      'For example: NEXT_PUBLIC_GRAPHQL_API_ENDPOINT=https://your-api-domain.com/graphql'
+    );
+    throw new Error(
+      'NEXT_PUBLIC_GRAPHQL_API_ENDPOINT is not defined. Please set this environment variable in your deployment platform.'
+    );
+  };
+
   const httpLink = createUploadLink({
-    uri: process.env.NEXT_PUBLIC_GRAPHQL_API_ENDPOINT, // Server URL (must be absolute)
+    uri: getGraphQLEndpoint(), // Server URL (must be absolute)
     credentials: 'same-origin',
   });
 
