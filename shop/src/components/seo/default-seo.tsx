@@ -11,7 +11,7 @@ const DefaultSeo = () => {
           content: 'width=device-width, initial-scale=1 maximum-scale=1',
         },
         {
-          name: 'apple-mobile-web-app-capable',
+          name: 'mobile-web-app-capable',
           content: 'yes',
         },
         {

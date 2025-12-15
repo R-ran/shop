@@ -40,11 +40,14 @@ const ProductsSlider = ({ products }: { products: Product[] }) => {
           prevEl: '.prev',
         }}
       >
-        {products?.map((product: Product) => (
-          <SwiperSlide key={product?.id}>
-            <ProductCard product={product} />
-          </SwiperSlide>
-        ))}
+        {products?.map((product: Product) => {
+          if (!product?.id) return null;
+          return (
+            <SwiperSlide key={product.id}>
+              <ProductCard product={product} />
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
       <div
         className="prev absolute top-2/4 z-10 -mt-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border-200 border-opacity-70 bg-light text-heading shadow-xl transition-all duration-200 hover:border-accent hover:bg-accent hover:text-light ltr:-left-4 rtl:-right-4 md:-mt-5 md:h-9 md:w-9 ltr:md:-left-5 rtl:md:-right-5"

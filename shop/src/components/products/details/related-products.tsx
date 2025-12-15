@@ -26,11 +26,11 @@ const RelatedProducts = ({
         )}
       >
         {products?.map((item: any, idx: number) => {
-          if (currentProductId === item.id) {
+          if (!item?.id || currentProductId === item.id) {
             return null;
           }
           return (
-            <ProductCard product={item} key={idx} cardType={item?.type?.slug} />
+            <ProductCard product={item} key={item.id} cardType={item?.type?.slug} />
           );
         })}
       </div>

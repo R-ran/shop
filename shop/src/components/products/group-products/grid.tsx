@@ -9,11 +9,12 @@ const GroupProductsGrid = ({ products }: { products: Product[] }) => {
   return (
     <div className="grid w-full gap-5 sm:grid-cols-3 lg:grid-cols-4">
       {products?.map((product, idx) => {
+        if (!product?.id) return null;
         return (
           <Link
             href={Routes.product(product?.slug)}
             className="relative grid w-full bg-gray-100 lg:even:col-span-2"
-            key={product?.id}
+            key={product.id}
           >
             <Image
               src={product?.image?.original ?? productPlaceholder}

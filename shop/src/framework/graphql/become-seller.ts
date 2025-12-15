@@ -30,6 +30,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
         data: data.becameSeller,
         ...(await serverSideTranslations(locale!, ['common'])),
       },
+      revalidate: 60,
     });
   } catch (error) {
     return {

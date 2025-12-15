@@ -64,9 +64,10 @@ export default function SellingProductsGrid({ className, limit = 6 }: Props) {
             ? rangeMap(limit, (i) => (
                 <ProductLoader key={i} uniqueKey={`product-${i}`} />
               ))
-            : products.map((product: any) => (
-                <ProductCard product={product} key={product.id} />
-              ))}
+            : products?.map((product: any) => {
+                if (!product?.id) return null;
+                return <ProductCard product={product} key={product.id} />;
+              })}
         </div>
       </div>
     </SectionBlock>
